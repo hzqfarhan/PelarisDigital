@@ -50,12 +50,10 @@ export const generateCaption = async ({
 
     const prompt = generatePrompt(context, language, tone);
 
-    const response = await ai.models.generateContent({
-        model,
-        contents: prompt,
-    });
+    const genModel = ai.getGenerativeModel({ model });
+    const response = await genModel.generateContent(prompt);
 
-    return response.text;
+    return response.response.text();
 }
 
 export const generateHooks = async ({
@@ -159,10 +157,8 @@ export const analyzePerformance = async (data: any) => {
 
     const prompt = generatePrompt(context, "en"); // analytics reporting usually in EN or mixed
 
-    const response = await ai.models.generateContent({
-        model,
-        contents: prompt,
-    });
+    const genModel = ai.getGenerativeModel({ model });
+    const response = await genModel.generateContent(prompt);
 
-    return response.text;
+    return response.response.text();
 }
