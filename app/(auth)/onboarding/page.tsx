@@ -2,7 +2,11 @@ import { saveOnboarding } from "@/app/actions";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({
+    searchParams,
+}: {
+    searchParams: { error?: string }
+}) {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -28,6 +32,12 @@ export default async function OnboardingPage() {
                     <h1 className="text-2xl font-bold tracking-tight mb-2">Almost there!</h1>
                     <p className="text-muted-foreground text-sm">Let us customize your AI experience by telling us a bit about your business.</p>
                 </div>
+
+                {searchParams?.error && (
+                    <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-sm p-3 rounded-md mb-6 text-center">
+                        {searchParams.error}
+                    </div>
+                )}
 
                 <form action={saveOnboarding} className="space-y-6">
                     <div className="space-y-2">

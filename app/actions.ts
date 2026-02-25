@@ -54,7 +54,7 @@ export async function saveOnboarding(formData: FormData) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        return { error: "Not authenticated" };
+        redirect("/login?error=" + encodeURIComponent("Not authenticated"));
     }
 
     const { error } = await supabase
@@ -67,7 +67,7 @@ export async function saveOnboarding(formData: FormData) {
         });
 
     if (error) {
-        return { error: error.message };
+        redirect("/onboarding?error=" + encodeURIComponent(error.message));
     }
 
     revalidatePath("/", "layout");
