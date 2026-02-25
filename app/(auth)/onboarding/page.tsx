@@ -1,0 +1,94 @@
+import { saveOnboarding } from "@/app/actions";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+
+export default async function OnboardingPage() {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        redirect("/login");
+    }
+
+    // Check if user already completed onboarding
+    const { data: profile } = await supabase
+        .from("business_profile")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+    if (profile) {
+        redirect("/dashboard");
+    }
+
+    return (
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+            <div className="w-full max-w-lg p-8 glass-card rounded-2xl relative z-10">
+                <div className="mb-8">
+                    <h1 className="text-2xl font-bold tracking-tight mb-2">Almost there!</h1>
+                    <p className="text-muted-foreground text-sm">Let us customize your AI experience by telling us a bit about your business.</p>
+                </div>
+
+                <form action={saveOnboarding} className="space-y-6">
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium leading-none" htmlFor="businessName">Business or Brand Name</label>
+                        <input
+                            id="businessName"
+                            name="businessName"
+                            type="text"
+                            placeholder="e.g. Sambal Nyet by Khairulaming"
+                            className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            required
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium leading-none" htmlFor="niche">Business Niche / Industry</label>
+                        <input
+                            id="niche"
+                            name="niche"
+                            type="text"
+                            placeholder="e.g. F&B, Fashion, Dropship"
+                            className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            required
+                        />
+                    </div>
+
+                    <div className="space-y-3">
+                        <label className="text-sm font-medium leading-none">Primary Goal for using Pelaris Digital</label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <label className="border border-border rounded-xl p-4 cursor-pointer hover:border-primary transition-colors flex flex-col items-center text-center gap-2">
+                                <input type="radio" name="primaryGoal" value="Sales" className="sr-only peer" required />
+                                <div className="text-2xl">💰</div>
+                                <div className="font-medium text-sm peer-checked:text-primary">Drive Sales</div>
+                            </label>
+
+                            <label className="border border-border rounded-xl p-4 cursor-pointer hover:border-primary transition-colors flex flex-col items-center text-center gap-2">
+                                <input type="radio" name="primaryGoal" value="Brand Awareness" className="sr-only peer" />
+                                <div className="text-2xl">📣</div>
+                                <div className="font-medium text-sm peer-checked:text-primary">Brand Awareness</div>
+                            </label>
+
+                            <label className="border border-border rounded-xl p-4 cursor-pointer hover:border-primary transition-colors flex flex-col items-center text-center gap-2">
+                                <input type="radio" name="primaryGoal" value="Follower Growth" className="sr-only peer" />
+                                <div className="text-2xl">📈</div>
+                                <div className="font-medium text-sm peer-checked:text-primary">Follower Growth</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="pt-4">
+                        <button
+                            type="submit"
+                            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+                        >
+                            Complete Setup
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-pink-600/10 rounded-full blur-[120px] -z-10 pointer-events-none" />
+        </div>
+    );
+}
